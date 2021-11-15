@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import UserModel from '../../models/User.model';
-import { UserInterface } from '../../models/User.model';
 const router = express.Router();
 import authMiddleware from './../../middleware/auth';
 
@@ -8,7 +7,7 @@ import { check, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-cc {
+export interface TokenInterface {
     user: {
         id: string;
         role: string;

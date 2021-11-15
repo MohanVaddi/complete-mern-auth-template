@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { TokenInterface } from './../routes/api/auth';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -17,7 +16,7 @@ export default (req: any | Request, res: Response, next: NextFunction) => {
 
     //* Verify Token
     try {
-        const decoded: string | TokenInterface | jwt.JwtPayload = jwt.verify(
+        const decoded: any = jwt.verify(
             token,
             process.env['JWT_SECRET'] as string
         );
