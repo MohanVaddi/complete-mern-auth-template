@@ -1,1 +1,1 @@
-# mern-authentication-template
+# complete-mern-authentication-template
