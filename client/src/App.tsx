@@ -24,12 +24,12 @@ export const App: React.FC<AppProps> = () => {
     return (
         <Fragment>
             <Global styles={GlobalStyles} />
-            <Layout>
-                <Container maxW='container.xl' p={0}>
-                    <Switch>
-                        <Route path='/' exact>
-                            <Login />
-                        </Route>
+            <Switch>
+                <Route path='/' exact>
+                    <Login />
+                </Route>
+                <Layout>
+                    <Container maxW='container.xl' p={0}>
                         <Route path='/facultyHome'>
                             <FacultyHome />
                         </Route>
@@ -42,9 +42,9 @@ export const App: React.FC<AppProps> = () => {
                         <Route path='/adminHome'>
                             <AdminHome />
                         </Route>
-                    </Switch>
-                </Container>
-            </Layout>
+                    </Container>
+                </Layout>
+            </Switch>
         </Fragment>
     );
 };

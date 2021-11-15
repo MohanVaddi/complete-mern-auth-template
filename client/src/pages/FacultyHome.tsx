@@ -1,4 +1,5 @@
 import { FormControl } from '@chakra-ui/form-control';
+import AppContext from '../context/AppContext';
 import {
     GridItem,
     SimpleGrid,
@@ -9,22 +10,17 @@ import {
     Select,
     Button,
 } from '@chakra-ui/react';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import DatePicker from 'react-datepicker';
-import { Notification } from '../components/Notification';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Redirect } from 'react-router-dom';
 interface FacultyHomeProps {}
 
-export const FacultyHome: React.FC<FacultyHomeProps> = ({}) => {
-    const subjects = ['AI', 'ML', 'ACC', 'IR', 'DIP'];
-    const classes = [
-        'CSE-06',
-        'CSE-01',
-        'CSE-02',
-        'CSE-03',
-        'CSE-04',
-        'CSE-05',
-    ];
+export const FacultyHome: React.FC<FacultyHomeProps> = () => {
+    const { state } = useContext(AppContext);
+
+    const subjects = state.user.subjects;
+    const classes = state.user.classes;
     const colspan = useBreakpointValue({ base: 2, md: 1 });
     const [fromDate, setFromDate] = useState<Date>(new Date());
     const [toDate, setToDate] = useState<Date>(new Date());
@@ -48,66 +44,70 @@ export const FacultyHome: React.FC<FacultyHomeProps> = ({}) => {
         console.log(data);
     };
 
-    return (
-        <VStack padding={[5, 8, 12]} minH={'100vh'}>
-            <SimpleGrid columns={2} columnGap={3} rowGap={6} w='full'>
-                <GridItem colSpan={colspan}>
-                    <FormControl>
-                        <FormLabel>From</FormLabel>
-                        <Input
-                            as={DatePicker}
-                            selected={fromDate}
-                            onSelect={handleFromDateSelect}
-                            dateFormat='dd/MM/yyyy'
-                        />
-                    </FormControl>
-                </GridItem>
-                <GridItem colSpan={colspan}>
-                    <FormControl>
-                        <FormLabel>To</FormLabel>
-                        <Input
-                            as={DatePicker}
-                            selected={toDate}
-                            onSelect={handleToDateSelect}
-                            dateFormat='dd/MM/yyyy'
-                        />
-                    </FormControl>
-                </GridItem>
-                <GridItem colSpan={colspan}>
-                    <FormControl>
-                        <FormLabel>Subject</FormLabel>
-                        <Select ref={subjectRef}>
-                            {subjects &&
-                                subjects.map((subject, index) => (
-                                    <option key={index} value={subject}>
-                                        {subject}
-                                    </option>
-                                ))}
-                        </Select>
-                    </FormControl>
-                </GridItem>
-                <GridItem colSpan={colspan}>
-                    <FormControl>
-                        <FormLabel>Class</FormLabel>
-                        <Select ref={classRef}>
-                            {classes &&
-                                classes.map((classVal, index) => (
-                                    <option key={index} value={classVal}>
-                                        {classVal}
-                                    </option>
-                                ))}
-                        </Select>
-                    </FormControl>
-                </GridItem>
-                <GridItem colSpan={2}>
-                    <Button
-                        variant='primary'
-                        size='sm'
-                        onClick={onFormSubmitHandler}>
-                        View Attendance
-                    </Button>
-                </GridItem>
-            </SimpleGrid>
-        </VStack>
-    );
+    if (state.user.isLoggedIn === false) {
+        return <Redirect to='/' />;
+    } else {
+        return (
+            <VStack padding={[5, 8, 12]} minH={'100vh'}>
+                <SimpleGrid columns={2} columnGap={3} rowGap={6} w='full'>
+                    <GridItem colSpan={colspan}>
+                        <FormControl>
+                            <FormLabel>From</FormLabel>
+                            <Input
+                                as={DatePicker}
+                                selected={fromDate}
+                                onSelect={handleFromDateSelect}
+                                dateFormat='dd/MM/yyyy'
+                            />
+                        </FormControl>
+                    </GridItem>
+                    <GridItem colSpan={colspan}>
+                        <FormControl>
+                            <FormLabel>To</FormLabel>
+                            <Input
+                                as={DatePicker}
+                                selected={toDate}
+                                onSelect={handleToDateSelect}
+                                dateFormat='dd/MM/yyyy'
+                            />
+                        </FormControl>
+                    </GridItem>
+                    <GridItem colSpan={colspan}>
+                        <FormControl>
+                            <FormLabel>Subject</FormLabel>
+                            <Select ref={subjectRef}>
+                                {subjects &&
+                                    subjects.map((subject, index) => (
+                                        <option key={index} value={subject}>
+                                            {subject}
+                                        </option>
+                                    ))}
+                            </Select>
+                        </FormControl>
+                    </GridItem>
+                    <GridItem colSpan={colspan}>
+                        <FormControl>
+                            <FormLabel>Class</FormLabel>
+                            <Select ref={classRef}>
+                                {classes &&
+                                    classes.map((classVal, index) => (
+                                        <option key={index} value={classVal}>
+                                            {classVal}
+                                        </option>
+                                    ))}
+                            </Select>
+                        </FormControl>
+                    </GridItem>
+                    <GridItem colSpan={2}>
+                        <Button
+                            variant='primary'
+                            size='sm'
+                            onClick={onFormSubmitHandler}>
+                            View Attendance
+                        </Button>
+                    </GridItem>
+                </SimpleGrid>
+            </VStack>
+        );
+    }
 };

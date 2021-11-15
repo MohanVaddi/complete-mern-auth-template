@@ -1,17 +1,11 @@
 import { UserInterface } from '../context/AppContext';
 import {
     Flex,
-    Box,
     FormControl,
     FormLabel,
     Input,
-    Checkbox,
     Stack,
-    Link,
     Button,
-    Heading,
-    Text,
-    useColorModeValue,
     InputGroup,
     InputLeftElement,
     ButtonProps,
@@ -20,10 +14,10 @@ import {
 import { Redirect } from 'react-router-dom';
 import { EmailIcon, UnlockIcon } from '@chakra-ui/icons';
 import React, { useRef, useContext, useEffect, useMemo, useState } from 'react';
-import { ClipLoader } from 'react-spinners';
 import { motion } from 'framer-motion';
 import axios, { AxiosResponse } from 'axios';
 import AppContext from '../context/AppContext';
+import { LoadingModal } from '../components/LoadingModal';
 const MotionButton = motion<ButtonProps>(Button);
 
 interface LoginResponseInterface extends AxiosResponse {
@@ -44,15 +38,12 @@ export const Login: React.FC = () => {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwdRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
-    
-    const spinnerColor = useColorModeValue('#000', 'brand.500');
+
     const ctx = useContext(AppContext);
 
-    // useMemo function getIsTokenValid
     const isTokenValid = useMemo(async (): Promise<
         isValidTokenInterface | false
     > => {
-        setIsLoading(true);
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             const isValidResp: AxiosResponse<isValidTokenResponseInterface> =
@@ -63,11 +54,34 @@ export const Login: React.FC = () => {
                 });
             return { ...isValidResp.data, token: accessToken };
         }
-        setIsLoading(false);
         return false;
     }, []);
 
-
+    useEffect(() => {
+        (async function () {
+            setIsLoading(true);
+            const isValidToken = await isTokenValid;
+            if (isValidToken) {
+                const payload = {
+                    ...isValidToken.user,
+                    token: isValidToken.token,
+                    isLoggedIn: true,
+                };
+                console.log(payload);
+                ctx.dispatch({
+                    type: 'SET_USER',
+                    payload: payload,
+                });
+                setIsLoading(false);
+            } else {
+                ctx.dispatch({
+                    type: 'SET_LOGGEDIN',
+                    payload: false,
+                });
+                setIsLoading(false);
+            }
+        })();
+    }, [isTokenValid]);
 
     const onLoginHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -101,23 +115,10 @@ export const Login: React.FC = () => {
         }
     };
 
-
     if (isLoading) {
-        return (
-            <Box
-                w='100%'
-                h='100%'
-                display='flex'
-                justifyContent='center'
-                alignItems='center'>
-                <ClipLoader
-                    size={150}
-                    color={spinnerColor}
-                    speedMultiplier={1}
-                />
-            </Box>
-        );
+        return <LoadingModal />;
     }
+
     if (ctx.state.user.isLoggedIn && ctx.state.user.role === 'student') {
         return <Redirect to='/studentHome' />;
     } else if (ctx.state.user.isLoggedIn && ctx.state.user.role === 'faculty') {
